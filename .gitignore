@@ -1,4 +1,5 @@
 gba/
+.gba/
 
 library.tsv
 untitled.tsv
