@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>§imulator.Ws | Gem Smashers</title>
+    <link rel="icon" type="image/x-icon" href="../../system/iconMain.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        html, body { height: 100%; margin: 0; background: #111; overflow: hidden; overscroll-behavior: none; }
+        #display { width: 100%; height: 100%; }
+        #status {
+            position: fixed; inset: 0; z-index: 9999;
+            width: 100%; height: 100%;
+            background: #111;
+            color: #ccc; font-family: monospace; text-align: center;
+            display: flex; flex-direction: column; gap: 0.8em;
+            align-items: center; justify-content: center;
+            overflow: hidden;
+            touch-action: none;
+        }
+        #status .throbber-icon {
+            width: 9em; height: 9em;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #status .throbber-icon img {
+            width: 100%; height: 100%;
+            display: block;
+            animation: ejs-throbber-spin 2.8s ease-in-out infinite;
+        }
+        #status.error .throbber-icon { display: none; }
+        #status.error #status-text { color: #e25a5a; white-space: pre-wrap; max-width: 30em; }
+        @keyframes ejs-throbber-spin {
+            0%   { transform: rotate(0deg); }
+            35%  { transform: rotate(360deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <div class="throbber-icon"><img src="../../system/iconBlank.png" alt="" /></div>
+        <div id="status-text">Loading...</div>
+    </div>
+
+    <script>
+        const GAME_URL   = "https://rom.ankomstudios.com/gba/gem-smashers.gba";
+        const CORE       = "gba";
+        const DATA_PATH  = "../../system/emulatorjs/data/";
+
+        // One-time reset: wipes all saved EmulatorJS preferences (shader,
+        // volume, control remaps, cheats, etc.) from this browser so nobody
+        // stays stuck on an old/laggy saved config. Runs once; anything
+        // changed afterward saves normally again.
+        try {
+            if (localStorage.getItem("ejs-prefs-reset-v1") !== "done") {
+                localStorage.removeItem("ejs-settings");
+                localStorage.removeItem("ejs-" + CORE + "-settings");
+                localStorage.removeItem("ejs-shader-reset-v2");
+                localStorage.setItem("ejs-prefs-reset-v1", "done");
+            }
+        } catch (e) {}
+
+        const statusEl = document.getElementById("status");
+        const textEl   = document.getElementById("status-text");
+
+        // Terse status word on screen (Loading.../Loaded/Crashed/404); the
+        // full diagnostic detail still goes to the console and a tooltip.
+        function fail(msg, shortLabel) {
+            statusEl.classList.add("error");
+            textEl.textContent = shortLabel || "Crashed";
+            textEl.title = msg;
+            console.error(msg);
+        }
+
+        // Pre-flight check: confirms the ROM URL is actually reachable and
+        // CORS-permitted BEFORE handing off to the engine, since the engine
+        // itself won't reliably report why a load failed.
+        fetch(GAME_URL, { method: "HEAD" })
+            .then((res) => {
+                if (!res.ok) {
+                    fail(
+                        `ROM request returned HTTP ${res.status}.\nCheck the file exists at that path in the R2 bucket.`,
+                        String(res.status)
+                    );
+                    return;
+                }
+                boot();
+            })
+            .catch((err) => {
+                fail(
+                    "Couldn't reach the ROM URL.\n" +
+                    "This is almost always a CORS policy on the bucket blocking this " +
+                    "page's origin (" + location.origin + "), or the domain not being active yet.\n\n" +
+                    "(" + err + ")",
+                    "Crashed"
+                );
+            });
+
+        function boot() {
+            const div = document.createElement("div");
+            div.id = "display";
+            document.body.appendChild(div);
+
+            window.EJS_player       = "#display";
+            window.EJS_gameName     = "Gem Smashers (test)";
+            window.EJS_gameUrl      = GAME_URL;
+            window.EJS_core         = CORE;
+            window.EJS_pathtodata   = DATA_PATH;
+            window.EJS_startOnLoaded = true;
+            window.EJS_biosUrl      = "";
+
+            window.EJS_onGameStart = () => {
+                textEl.textContent = "Loaded";
+                setTimeout(() => statusEl.remove(), 200);
+            };
+
+            const script = document.createElement("script");
+            script.src = DATA_PATH + "loader.js";
+            script.onerror = () => fail("Failed to load the emulator engine script from " + script.src, "Crashed");
+            document.body.appendChild(script);
+
+            const controlsScript = document.createElement("script");
+            controlsScript.src = DATA_PATH + "controls.js";
+            document.body.appendChild(controlsScript);
+        }
+    </script>
+</body>
+</html>
