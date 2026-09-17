@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>Simulator.Ws | Pokemon Sapphire Version</title>
-    <link rel="icon" type="image/x-icon" href="/images/iconMain.png">
+    <link rel="icon" type="image/x-icon" href="../iconMain.png">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         html, body { height: 100%; margin: 0; background: #111; overflow: hidden; overscroll-behavior: none; }
@@ -44,7 +44,7 @@
     <script>
         const GAME_URL   = "https://rom.ankomstudios.com/gba/sapphire.gba";
         const CORE       = "gba";
-        const DATA_PATH  = "../emulatorjs/data/"; // sapphire/ must sit next to emulatorjs/
+        const DATA_PATH  = "../emulatorjs/data/";
 
         // One-time reset: wipes all saved EmulatorJS preferences (shader,
         // volume, control remaps, cheats, etc.) from this browser so nobody
@@ -101,7 +101,7 @@
             document.body.appendChild(div);
 
             window.EJS_player       = "#display";
-            window.EJS_gameName     = "FireRed (test)";
+            window.EJS_gameName     = "Pokemon Sapphire (test)";
             window.EJS_gameUrl      = GAME_URL;
             window.EJS_core         = CORE;
             window.EJS_pathtodata   = DATA_PATH;
