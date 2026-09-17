@@ -1,8 +1,10 @@
 gba/
 .gba/
 
-library.tsv
-untitled.tsv
-main.tsv
+.stv/*
+!.stv/.gitkeep
 
-cors-policy.json
+.gs/*
+!.gs/.gitkeep
+
+.cloudflare/
