@@ -3,5 +3,6 @@ gba/
 
 library.tsv
 untitled.tsv
+main.tsv
 
 cors-policy.json
