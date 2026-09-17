@@ -117,6 +117,10 @@
             script.src = DATA_PATH + "loader.js";
             script.onerror = () => fail("Failed to load the emulator engine script from " + script.src, "Crashed");
             document.body.appendChild(script);
+
+            const controlsScript = document.createElement("script");
+            controlsScript.src = DATA_PATH + "controls.js";
+            document.body.appendChild(controlsScript);
         }
     </script>
 </body>
